@@ -1,0 +1,84 @@
+<!doctype html>
+<html>
+<head>
+    <!-- Tailwind is pretty great. I'm becoming a convert from tachyons. -->
+    <link href="https://unpkg.com/tailwindcss@^1.0/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="text-gray-800">
+    <header class="bg-purple-600 py-8">
+        <h1 class="text-center text-4xl font-bold text-white"><span class="text-yellow-400 font-black underline italic">HashCache</span>: We cache hashes!</h1>
+    </header>
+    <main class="max-w-lg mx-auto mb-8">
+        <h2 class="text-3xl font-bold mt-8">How it works</h2>
+        <p class="text-lg py-2">Give us a URL, and we'll tell you the hash of whatever's there. We cache hashes for 5 minutes. Hence the name!</p>
+        <p class="text-lg py-2">Sure, you could do <code class="text-orange-500 px-2">curl ... | sha1sum</code> instead, but that sounds an awful lot like rolling your own crypto.</p>
+
+        <h2 class="text-3xl font-bold mt-8">Try it for free!</h2>
+        <p class="text-xs">(I'm sure we'll think of a business model later.)</p>
+        <form id="form" class="w-full my-4 p-6 border flex flex-col" action="/hash" target="_blank">
+            <div>
+                <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="grid-last-name">
+                    HTTP method
+                </label>
+                <div class="inline-block relative w-24">
+                    <select name="method" class="block appearance-none w-full bg-white border border-gray-400 hover:border-gray-500 px-4 py-2 pr-8 rounded shadow leading-tight focus:outline-none focus:shadow-outline">
+                        <option>GET</option>
+                        <option>POST</option>
+                        <option>PUT</option>
+                    </select>
+                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                        <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-8">
+                <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="grid-first-name">
+                    URL to fetch
+                </label>
+                <input name="url" class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="grid-first-name" type="text" placeholder="http://www.example.com">
+            </div>
+            <div class="mt-8">
+                <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" for="grid-last-name">
+                    Authorization header
+                </label>
+                <input name="authorization" class="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="grid-last-name" type="text" placeholder="Bearer <some token>">
+                <p class="text-gray-600 text-xs italic">Set an arbitrary authorization header. Use this if the URL you're fetching requires auth.</p>
+            </div>
+            <input class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline mt-8 self-end" type="submit" value="GO">
+        </form>
+
+        <p class="hidden text-center py-6 text-lg bg-green-500 text-white rounded font-bold" id="result"></p>
+
+        <h2 class="text-3xl font-bold mt-8">Stuff for nerds</h2>
+        <p class="text-lg py-2">Our tech stack is <a class="text-blue-500 underline hover:text-red-500" href="https://nim-lang.org/">Nim</a> and <a class="text-blue-500 underline hover:text-red-500" href="https://redis.io/">Redis</a>. You can find the <a class="text-blue-500 underline hover:text-red-500" href="https://github.com/smarx/hashcache-ctf">full source code here</a>.</p>
+    </main>
+
+    <script>
+        // Progressive enhancement! This JavaScript doesn't do anything of
+        // importance. If you get rid of it, the form will take you to a new
+        // page instead, with the result as plain text. I thought that wasn't
+        // pretty enough, so I wrote some JavaScript.
+
+        let form = document.getElementById("form");
+        let result = document.getElementById("result");
+        form.onsubmit = function (e) {
+            e.preventDefault();
+            fetch('/hash?' + new URLSearchParams(new FormData(form)))
+                .then(r => r.text())
+                .then(t => {
+                    result.innerText = t;
+                    result.classList.remove("hidden");
+
+                    // A little hacky, but it's just cosmetic.
+                    if (t.startsWith("ERROR")) {
+                        result.classList.add("bg-red-500");
+                        result.classList.remove("bg-green-500");
+                    } else {
+                        result.classList.add("bg-green-500");
+                        result.classList.remove("bg-red-500");
+                    }
+                });
+        }
+    </script>
+</body>
+</html>

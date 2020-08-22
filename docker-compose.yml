@@ -1,0 +1,19 @@
+# This file isn't interesting for the CTF. I'm just using Docker to make it
+# easier to deploy everything.
+
+version: '3'
+services:
+  web:
+    build: .
+    depends_on:
+      - redis
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - FLAG=${FLAG}
+  redis:
+    image: redis
+    volumes:
+      - ./redis/redis.conf:/usr/local/etc/redis/redis.conf
+    command:
+      - /usr/local/etc/redis/redis.conf

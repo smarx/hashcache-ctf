@@ -1,0 +1,8 @@
+# This file isn't interesting for the CTF. I'm just using Docker to make it
+# easier to deploy everything.
+
+version: '3'
+services:
+    web:
+        ports:
+        - "80:8080"
