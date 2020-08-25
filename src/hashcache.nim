@@ -65,4 +65,9 @@ proc handler(req: Request) {.async.} =
     ]))
 
 when isMainModule:
-  waitFor newAsyncHttpServer().serve(Port(8080), handler)
+  # restart server if it throws an exception
+  while true:
+    try:
+      waitFor newAsyncHttpServer().serve(Port(8080), handler)
+    except:
+      discard
